@@ -1,5 +1,7 @@
 # YaleDoc — self-encrypting documents
 
+[![CI](https://github.com/yaleedhaque/yale-doc-yaleed/actions/workflows/ci.yml/badge.svg)](https://github.com/yaleedhaque/yale-doc-yaleed/actions/workflows/ci.yml)
+
 A Word-like document that lives inside **one HTML file** (`.ydoc.html`) and is
 **always** password-encrypted. Open it anywhere — Windows, Linux, Android, any
 browser — even fully offline. Requires no account, no cloud, no install.
