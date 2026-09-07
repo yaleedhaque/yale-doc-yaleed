@@ -75,7 +75,10 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
 .dlg .sub{color:var(--ink-2);font-size:12.5px;margin:0 0 16px;line-height:1.5}
 .field{margin:10px 0}
 .field label{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:5px}
-.field input[type=password],.field input[type=text]{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);color:var(--ink);font-size:14px}
+.field input[type=password],.field input[type=text]{width:100%;padding:9px 38px 9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);color:var(--ink);font-size:14px}
+.field .pw{position:relative}
+.pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:28px;height:28px;border:0;background:none;cursor:pointer;font-size:15px;line-height:1;opacity:.55;padding:0;display:flex;align-items:center;justify-content:center;transition:opacity .15s}
+.pw-eye:hover{opacity:1}
 .field input:focus{outline:2px solid var(--accent);border-color:transparent}
 .strength{height:4px;border-radius:4px;background:var(--line);margin-top:6px;overflow:hidden}
 .strength>i{display:block;height:100%;width:0;background:var(--danger);transition:width .2s,background .2s}
@@ -138,7 +141,7 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
     <p id="lockSub">This document is password-protected (AES-256-GCM). Enter the password to decrypt it on this device. Nothing is ever uploaded — it decrypts entirely in your browser, even offline.</p>
     <div class="field">
       <label for="lockPw">Password</label>
-      <input type="password" id="lockPw" autocomplete="off" placeholder="Enter password">
+      <div class="pw"><input type="password" id="lockPw" autocomplete="off" placeholder="Enter password"><button type="button" class="pw-eye" data-eyes="lockPw" title="Show password" aria-label="Show password">👁</button></div>
     </div>
     <button class="btn primary" id="lockGo">Unlock document</button>
     <div id="lockErr"></div>
@@ -153,13 +156,13 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
     <p>Set a password to create your document. The password can be changed later inside the document. <b>If you forget it, the content is unrecoverable.</b></p>
     <div class="field">
       <label for="setupPw">Create a password</label>
-      <input type="password" id="setupPw" autocomplete="new-password" placeholder="Choose a strong password">
+      <div class="pw"><input type="password" id="setupPw" autocomplete="new-password" placeholder="Choose a strong password"><button type="button" class="pw-eye" data-eyes="setupPw" title="Show password" aria-label="Show password">👁</button></div>
       <div class="strength"><i id="setupMeter"></i></div>
       <div class="hint" id="setupStrengthNote">Use 10+ characters; mix letters, numbers and symbols.</div>
     </div>
     <div class="field">
       <label for="setupPw2">Repeat password</label>
-      <input type="password" id="setupPw2" autocomplete="new-password" placeholder="Repeat the password">
+      <div class="pw"><input type="password" id="setupPw2" autocomplete="new-password" placeholder="Repeat the password"><button type="button" class="pw-eye" data-eyes="setupPw2" title="Show password" aria-label="Show password">👁</button></div>
     </div>
     <button class="btn primary" id="setupGo">Create document →</button>
     <div style="height:12px"></div>
@@ -238,9 +241,9 @@ button:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(-
   <div class="dlg">
     <h2>Change password</h2>
     <p class="sub">This re-encrypts the document with a new password and saves it. If you forget the new password, the document is unrecoverable.</p>
-    <div class="field"><label for="oldPw">Current password</label><input type="password" id="oldPw" autocomplete="off"></div>
-    <div class="field"><label for="newPw">New password</label><input type="password" id="newPw" autocomplete="new-password"><div class="strength"><i id="newMeter"></i></div></div>
-    <div class="field"><label for="newPw2">Repeat new password</label><input type="password" id="newPw2" autocomplete="new-password"></div>
+    <div class="field"><label for="oldPw">Current password</label><div class="pw"><input type="password" id="oldPw" autocomplete="off"><button type="button" class="pw-eye" data-eyes="oldPw" title="Show password" aria-label="Show password">👁</button></div></div>
+    <div class="field"><label for="newPw">New password</label><div class="pw"><input type="password" id="newPw" autocomplete="new-password"><button type="button" class="pw-eye" data-eyes="newPw" title="Show password" aria-label="Show password">👁</button></div><div class="strength"><i id="newMeter"></i></div></div>
+    <div class="field"><label for="newPw2">Repeat new password</label><div class="pw"><input type="password" id="newPw2" autocomplete="new-password"><button type="button" class="pw-eye" data-eyes="newPw2" title="Show password" aria-label="Show password">👁</button></div></div>
     <div class="btnrow">
       <button class="btn" data-close="pwDialog">Cancel</button>
       <button class="btn primary" id="pwGo">Change & save</button>
@@ -541,12 +544,27 @@ function parseCurrentPayload(){
 
 function boot(){
   state.payload = parseCurrentPayload();
+  wireEyes();
   if (state.payload && state.payload.f != null){
     show($("lockScreen"));
   } else {
     show($("setupScreen"));
     wireSetup();
   }
+}
+
+/* show/hide password fields (eye icons) */
+function wireEyes(){
+  document.querySelectorAll(".pw-eye").forEach(b=>{
+    b.onclick = ()=>{
+      const input = $(b.dataset.eyes);
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      b.textContent = show ? "🙈" : "👁";
+      b.title = show ? "Hide password" : "Show password";
+      input.focus();
+    };
+  });
 }
 
 function wireSetup(){

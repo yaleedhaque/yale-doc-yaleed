@@ -9,7 +9,7 @@ from playwright.sync_api import sync_playwright
 
 APP = "/mnt/windows_d/OpenCode Projects/Development/yale-doc/source/app.html"
 SCR = "/mnt/windows_d/OpenCode Projects/Screenshots"
-PW = "Correct-Horse-2026-!"
+PW = "demo1234"
 
 results = []
 def ok(name, val=True):
@@ -40,7 +40,7 @@ with sync_playwright() as p:
         meta:{title:"My First YaleDoc", created:new Date().toISOString(), updated:new Date().toISOString()},
         settings:{theme:"sepia", fontFamily:"serif", fontSize:13, pageSize:"a4", margin:"normal", autoLock:10},
         content:"<h1>Welcome to YaleDoc</h1><p>This <b>entire document</b> is encrypted with AES-256-GCM and lives inside one HTML file.</p><blockquote>It opens on any device &mdash; even offline.</blockquote><p>Secret line: the duck flies at midnight.</p>"};
-      const payload = await R.makePayload(JSON.parse('"' + 'Correct-Horse-2026-!' + '"'), docObj);
+      const payload = await R.makePayload(JSON.parse('"' + 'demo1234' + '"'), docObj);
       const file = R.buildFileString(payload);
       return file;
     }""")
@@ -56,6 +56,14 @@ with sync_playwright() as p:
     ok("lock-screen-shows-after-reopen", True)
     page.screenshot(path=f"{SCR}/yale-doc-lock-screen.png")
 
+    # eye toggle reveals/hides password
+    page.fill("#lockPw", PW)
+    page.click(".pw-eye[data-eyes=lockPw]")
+    ok("eye-reveals-password", page.get_attribute("#lockPw", "type") == "text")
+    ok("eye-keeps-value", page.input_value("#lockPw") == PW)
+    page.click(".pw-eye[data-eyes=lockPw]")
+    ok("eye-re-hides-password", page.get_attribute("#lockPw", "type") == "password")
+    page.fill("#lockPw", "")
     # wrong password
     page.fill("#lockPw", "wrong-password")
     page.click("#lockGo")
@@ -88,7 +96,7 @@ with sync_playwright() as p:
     }""")
     rebuilt = page.evaluate("""async () => {
       const R = window.__yd;
-      const payload = await R.makePayload(JSON.parse('"' + 'Correct-Horse-2026-!' + '"'),
+      const payload = await R.makePayload(JSON.parse('"' + 'demo1234' + '"'),
         {v:1, meta:R.state.doc.meta, settings:R.state.doc.settings, content:R.currentHtml()});
       return R.buildFileString(payload);
     }""")
@@ -97,7 +105,7 @@ with sync_playwright() as p:
     dec = page.evaluate("""(file) => (async () => {
       const R = window.__yd;
       const p = R.getPayloadFromSource(file);
-      const d = await R.openPayload(JSON.parse('"' + 'Correct-Horse-2026-!' + '"'), p);
+      const d = await R.openPayload(JSON.parse('"' + 'demo1234' + '"'), p);
       return d.content;
     })()""", rebuilt)
     ok("resave-includes-edit-after-decrypt", "Extra paragraph added on reopen" in (dec or ""))
