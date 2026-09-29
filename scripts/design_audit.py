@@ -105,9 +105,21 @@ CONTRAST = r"""() => {
   push('doc h1','#ydPages h1'); push('doc quote','#ydPages blockquote p');
   push('muted/status','#statusbar'); push('hint text','.hint');
   push('sub-hint','#setupNote'); push('strength hint','#setupStrengthNote');
-  push('link','#ydPages a'); push('toolbar icon','#cmdbar #bBold');
+  push('link','#ydPages a'); push('toolbar icon','#cmdbar #bImg');
+  push('topbar icon','#topbar #railBtn .ico');
   push('guide label','#guides .guide span');
   push('page text','#ydPages');
+  /* The pressed state of a toggle cannot be measured reliably: syncToolbar() flips
+     aria-pressed on selectionchange and .iconbtn transitions colour/background, so a
+     live read can land mid-transition. Compute it from the design tokens instead. */
+  const cs2 = getComputedStyle(document.documentElement);
+  const acc = parse(cs2.getPropertyValue('--accent').trim());
+  const accInk = parse(cs2.getPropertyValue('--accent-ink').trim());
+  if (acc && accInk) {
+    const rs = getComputedStyle(document.querySelector('#cmdbar #bImg') || document.body);
+    out.push({name:'pressed toggle (token pair)', ratio: ratio(acc, accInk), fs:rs.fontSize, fw:rs.fontWeight,
+              fg: cs2.getPropertyValue('--accent-ink').trim(), bg: cs2.getPropertyValue('--accent').trim()});
+  }
   return out.filter(r => !r.hidden);
 }"""
 
@@ -165,10 +177,15 @@ with sync_playwright() as p:
         chk(f"{label}: page count is measured, not fixed", pages >= 2, f"{pages} pages")
         chk(f"{label}: one guide per page boundary", m["guideCount"] == max(0, pages - 1),
             f"{m['guideCount']} guides for {pages} pages")
+        # Toolbar buttons take their pressed colour from the current selection, so
+        # measuring with a live selection makes this check state-dependent. Clear it.
+        page.evaluate("() => { try { getSelection().removeAllRanges(); } catch (e) {} }")
+        page.wait_for_timeout(400)   # let the .iconbtn colour transition settle
         c = page.evaluate(CONTRAST)
         worst = sorted(c, key=lambda r: r["ratio"])[:3]
         bad = [r for r in c if r["ratio"] < 4.5]
-        chk(f"{label}: text contrast >= 4.5:1", not bad, [(r["name"], r["ratio"], r["fs"]) for r in bad][:4])
+        chk(f"{label}: text contrast >= 4.5:1", not bad,
+            [(r["name"], r["ratio"], r["fs"], r.get("fg"), r.get("bg")) for r in bad][:4])
         print("   contrast:", ", ".join(f"{r['name']}={r['ratio']}" for r in c))
         if label.startswith("desktop"):
             chk("doc h1 is large + bold", float(m["docTypography"]["h1"]["fs"][:-2]) >= 22 and int(m["docTypography"]["h1"]["fw"]) >= 600, m["docTypography"]["h1"])
@@ -201,6 +218,8 @@ with sync_playwright() as p:
     for th in ["paper", "ink", "sepia"]:
         page.evaluate("(t)=>{window.__yd.state.doc.settings.theme=t;window.__yd.applySettings();}", th)
         page.wait_for_timeout(250)
+        page.evaluate("() => { try { getSelection().removeAllRanges(); } catch (e) {} }")
+        page.wait_for_timeout(400)
         c = page.evaluate(CONTRAST)
         bad = [r for r in c if r["ratio"] < 4.5]
         cs = page.evaluate("()=>({scheme:getComputedStyle(document.documentElement).colorScheme, body:getComputedStyle(document.body).backgroundColor, ink:getComputedStyle(document.body).color})")
