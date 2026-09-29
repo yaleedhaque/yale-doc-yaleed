@@ -46,7 +46,7 @@ def main() -> int:
             page = b.new_page()
             errs = []
             page.on("pageerror", lambda e: errs.append(str(e)))
-            page.goto("file://" + str(DEMO))
+            page.goto(DEMO.resolve().as_uri())
             page.wait_for_selector("#lockScreen:not(.hidden)", timeout=25000)
             chk("demo opens to the lock screen", True)
             page.fill("#lockPw", "wrong-password-entirely")

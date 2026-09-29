@@ -115,7 +115,7 @@ with sync_playwright() as p:
         page = ctx.new_page()
         errs = []
         page.on("pageerror", lambda e: errs.append(str(e)))
-        page.goto("file://" + APP)
+        page.goto(Path(APP).resolve().as_uri())
         page.wait_for_selector("#setupScreen:not(.hidden)")
         page.fill("#setupPw", PW); page.fill("#setupPw2", PW); page.click("#setupGo")
         page.wait_for_selector("#app:not(.hidden)", timeout=40000)
@@ -164,7 +164,7 @@ with sync_playwright() as p:
     # themes
     ctx = b.new_context(viewport={"width": 1440, "height": 900})
     page = ctx.new_page()
-    page.goto("file://" + APP)
+    page.goto(Path(APP).resolve().as_uri())
     page.wait_for_selector("#setupScreen:not(.hidden)")
     page.fill("#setupPw", PW); page.fill("#setupPw2", PW); page.click("#setupGo")
     page.wait_for_selector("#app:not(.hidden)", timeout=40000)

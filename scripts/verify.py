@@ -27,6 +27,8 @@ ap.add_argument("--file", default=str(ROOT / "dist" / "YaleDoc-Blank.ydoc.html")
 ap.add_argument("--outdir", default=str(ROOT / "build" / "verify"))
 ap.add_argument("--headed", action="store_true")
 A = ap.parse_args()
+# a relative --file must become an absolute file:// URL, or every engine reports it missing
+A.file = str(Path(A.file).resolve())
 OUT = Path(A.outdir)
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -100,7 +102,7 @@ def run_engine(p, eng, app):
         return pth
 
     section(f"{eng} · boot + setup")
-    page.goto("file://" + app)
+    page.goto(Path(app).as_uri())
     page.wait_for_selector("#setupScreen:not(.hidden)", timeout=15000)
     chk("blank file opens the setup screen", True)
     chk("app stays hidden before a password exists", page.evaluate("()=>document.getElementById('app').classList.contains('hidden')"))
@@ -248,7 +250,7 @@ def run_engine(p, eng, app):
     chk("sanitizer keeps data: images", "data:image/png" in page.evaluate("(h)=>window.__yd.sanitizeHTML(h)", '<img src="data:image/png;base64,iVBORw0KGgo=">'))
 
     section(f"{eng} · save / reopen round trip")
-    page.goto("file://" + app)
+    page.goto(Path(app).as_uri())
     page.wait_for_selector("#setupScreen:not(.hidden)")
     page.fill("#setupPw", PW); page.fill("#setupPw2", PW); page.click("#setupGo")
     page.wait_for_selector("#app:not(.hidden)", timeout=40000)
@@ -290,7 +292,7 @@ def run_engine(p, eng, app):
 
     section(f"{eng} · crypto integrity")
     crypt = n = ctx.new_page()
-    crypt.goto("file://" + app)
+    crypt.goto(Path(app).as_uri())
     crypt.wait_for_selector("#setupScreen:not(.hidden)")
     r = crypt.evaluate("""async (pw) => {
       const yd = window.__yd, out = {};
