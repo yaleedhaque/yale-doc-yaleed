@@ -963,6 +963,13 @@ function init() {
   }
   if (!window.indexedDB) { /* optional: only the reopen shortcut is lost */ }
   setInterval(autolockTick, 5000);
+  /* Page guides are measured from real layout. A rAF-throttled measurement can run
+     before an engine has laid the new content out (WebKit on a narrow viewport read
+     every block height as 0), so observe the page box itself: this fires after
+     layout in every engine and keeps the guide count honest. */
+  if (window.ResizeObserver) {
+    try { new ResizeObserver(scheduleGuides).observe(editor()); } catch (e) { }
+  }
   try { boot(); } catch (e) { fatalScreen("err.generic", (e && e.stack) || String(e)); }
 }
 

@@ -6,22 +6,37 @@ four viewports, four device pixel ratios and all three themes. A screenshot is
 context, not a spec - this is the spec.
 
     python3 scripts/design_audit.py
+    python3 scripts/design_audit.py --engine firefox
 """
+import argparse
 import json
 import sys
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
-APP = str(Path(sys.argv[1]).resolve()) if len(sys.argv) > 1 else str(ROOT / "dist" / "YaleDoc-Blank.ydoc.html")
+_ap = argparse.ArgumentParser(add_help=True)
+_ap.add_argument("file", nargs="?", default=str(ROOT / "dist" / "YaleDoc-Blank.ydoc.html"))
+_ap.add_argument("--engine", default="chromium", help="chromium | firefox | webkit")
+ARGS = _ap.parse_args()
+APP = str(Path(ARGS.file).resolve())
 PW = "Str0ng-Pass-2026!"
+_P = ("A document format should outlive the application that writes it, and a good editor should "
+      "feel like a sheet of paper rather than a control panel. Every decision here follows from one "
+      "constraint: the file is the program, so there is no runtime to install, no server to reach, "
+      "and no plaintext allowed to touch the disk at any point in the pipeline. ")
 SAMPLE = ("<h1>The Architecture of Small Software</h1><p>Good tools disappear. The best ones are "
           "<strong>unremarkable</strong> until the moment you need them, and then they are the only "
           "thing that matters.</p><blockquote><p>A document format should outlive the application "
-          "that writes it.</p></blockquote><h2>1. Constraints first</h2><p>Every decision below follows "
-          "from one constraint: <em>the file is the program</em>.</p><ul><li>Encryption is the default."
-          "</li><li>Every save re-randomises the IV.</li></ul><h2>2. The table is the thing</h2>"
-          "<p>Structured content survives. Prose survives. Everything else is a liability.</p>")
+          "that writes it.</p></blockquote><h2>1. Constraints first</h2>"
+          + "<p>" + _P * 3 + "</p>"
+          + "<ul><li>Encryption is the default, never a toggle.</li>"
+            "<li>Every save re-randomises the initialisation vector.</li>"
+            "<li>No plaintext ever reaches the filesystem.</li></ul>"
+          + "<h2>2. The table is the thing</h2><p>" + _P * 3 + "</p>"
+          + "<table><thead><tr><th>Layer</th><th>Choice</th></tr></thead><tbody>"
+            "<tr><td>Cipher</td><td>AES-256-GCM</td></tr><tr><td>KDF</td><td>PBKDF2-SHA-256</td></tr>"
+            "</tbody></table><p>" + _P * 2 + "</p>")
 
 MEASURE = r"""() => {
   const px = (el, p) => parseFloat(getComputedStyle(el)[p]) || 0;
@@ -105,7 +120,8 @@ def chk(name, ok, detail=""):
 
 
 with sync_playwright() as p:
-    b = p.chromium.launch(headless=True)
+    b = getattr(p, ARGS.engine).launch(headless=True)
+    print(f"engine: {ARGS.engine}")
 
     for label, vp, dsf, mobile in [("desktop 1440x900", {"width": 1440, "height": 900}, 1, False),
                                    ("laptop 1280x800", {"width": 1280, "height": 800}, 1.25, False),
@@ -120,7 +136,11 @@ with sync_playwright() as p:
         page.fill("#setupPw", PW); page.fill("#setupPw2", PW); page.click("#setupGo")
         page.wait_for_selector("#app:not(.hidden)", timeout=40000)
         page.evaluate("(h)=>{const e=document.getElementById('ydPages');e.innerHTML=h;e.dispatchEvent(new Event('input',{bubbles:true}));}", SAMPLE)
-        page.wait_for_timeout(700)
+        page.wait_for_function("() => { const g=document.querySelectorAll('#guides .guide').length;"
+                               " const p=parseInt(document.getElementById('stPages').textContent||'1',10);"
+                               " const laidOut = document.getElementById('ydPages').scrollHeight > 600;"
+                               " return laidOut && g === Math.max(0, p-1); }", timeout=15000)
+        page.wait_for_timeout(250)
         m = page.evaluate(MEASURE)
         print(f"\n===== {label} (dpr {m['dpr']}) =====")
         chk(f"{label}: no horizontal overflow", not m["overflowX"], f"scrollWidth={m['docW']} vw={m['vw']}")
@@ -136,7 +156,10 @@ with sync_playwright() as p:
         chk(f"{label}: toolbar targets >= {32 if mobile else 26}px", not small, small[:4])
         chk(f"{label}: every control has an accessible name", not m["noAccessibleName"], m["noAccessibleName"][:6])
         chk(f"{label}: no emoji used as icons", not m["emojiIcons"], m["emojiIcons"][:6])
-        chk(f"{label}: page guides rendered", m["guideCount"] >= 1, f"{m['guideCount']} guides, status says {m['statusPages']} pages")
+        pages = int(str(m["statusPages"]).replace(",", "") or 1)
+        chk(f"{label}: page count is measured, not fixed", pages >= 2, f"{pages} pages")
+        chk(f"{label}: one guide per page boundary", m["guideCount"] == max(0, pages - 1),
+            f"{m['guideCount']} guides for {pages} pages")
         c = page.evaluate(CONTRAST)
         worst = sorted(c, key=lambda r: r["ratio"])[:3]
         bad = [r for r in c if r["ratio"] < 4.5]

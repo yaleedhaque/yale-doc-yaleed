@@ -241,7 +241,8 @@ function drawGuides() {
   if (!state.doc.settings.guides) return;
   const box = $("pageStack");
   const top = el.getBoundingClientRect().top - box.getBoundingClientRect().top;
-  const n = m.pages;
+  /* one guide per BOUNDARY, so pages-1 of them, never one past the last page */
+  const n = Math.max(0, m.pages - 1);
   for (let i = 1; i <= Math.min(n, 500); i++) {
     g.appendChild(mk("div", { class: "guide", style: "top:" + (top + i * m.usable) + "px" }, mk("span", { text: String(i + 1) })));
   }

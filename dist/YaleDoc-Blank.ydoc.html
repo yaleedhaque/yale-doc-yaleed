@@ -9,7 +9,7 @@
 <meta name="author" content="Md. Yaleed Haque">
 <meta name="application-name" content="YaleDoc">
 <meta name="format-detection" content="telephone=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-3a596844e75f2d5600dadf0bd97d185e'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; worker-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; manifest-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-843e46313914cb17b302023fcb6da2a7'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; worker-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; manifest-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta property="og:title" content="YaleDoc — Encrypted Document">
@@ -1084,7 +1084,7 @@ code.inline{font-family:var(--mono);font-size:.92em;background:var(--surface-3);
 <div id="dlgHost"></div>
 
 <script type="application/json" id="ydPayload"><!--YD:START-->null<!--YD:END--></script>
-<script nonce="3a596844e75f2d5600dadf0bd97d185e">
+<script nonce="843e46313914cb17b302023fcb6da2a7">
 "use strict";
 /* ==========================================================================
    YaleDoc v2 — core: constants, i18n, utilities, crypto, format, sanitizer
@@ -1833,7 +1833,8 @@ function drawGuides() {
   if (!state.doc.settings.guides) return;
   const box = $("pageStack");
   const top = el.getBoundingClientRect().top - box.getBoundingClientRect().top;
-  const n = m.pages;
+  /* one guide per BOUNDARY, so pages-1 of them, never one past the last page */
+  const n = Math.max(0, m.pages - 1);
   for (let i = 1; i <= Math.min(n, 500); i++) {
     g.appendChild(mk("div", { class: "guide", style: "top:" + (top + i * m.usable) + "px" }, mk("span", { text: String(i + 1) })));
   }
@@ -3950,6 +3951,13 @@ function init() {
   }
   if (!window.indexedDB) { /* optional: only the reopen shortcut is lost */ }
   setInterval(autolockTick, 5000);
+  /* Page guides are measured from real layout. A rAF-throttled measurement can run
+     before an engine has laid the new content out (WebKit on a narrow viewport read
+     every block height as 0), so observe the page box itself: this fires after
+     layout in every engine and keeps the guide count honest. */
+  if (window.ResizeObserver) {
+    try { new ResizeObserver(scheduleGuides).observe(editor()); } catch (e) { }
+  }
   try { boot(); } catch (e) { fatalScreen("err.generic", (e && e.stack) || String(e)); }
 }
 

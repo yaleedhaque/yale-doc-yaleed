@@ -40,7 +40,7 @@ jobs:
         run: python3 scripts/verify.py --engines ${{ matrix.engine }} --file dist/YaleDoc-Blank.ydoc.html
 
       - name: Design & accessibility audit
-        run: python3 scripts/design_audit.py dist/YaleDoc-Blank.ydoc.html
+        run: python3 scripts/design_audit.py --engine ${{ matrix.engine }} dist/YaleDoc-Blank.ydoc.html
 
       - uses: actions/upload-artifact@v4
         if: matrix.engine == 'chromium'
