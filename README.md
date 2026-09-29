@@ -104,16 +104,18 @@ below runs in CI on every push, on three independent engines.
 ```
 scripts/build.py          assemble the parts, then lint the result
 scripts/verify.py         123 behavioural / crypto / security checks per engine
-scripts/design_audit.py   63 design + accessibility checks, 4 viewports, 3 themes
+scripts/design_audit.py   67 design + accessibility checks, 4 viewports, 3 themes
 scripts/check_demo.py     proves the shipped demo really opens
 ```
 
 Current status:
 
-| Suite | Chromium | Firefox | WebKit |
-|---|---|---|---|
-| Behaviour, crypto, security (123 each) | ✅ | ✅ | ✅ |
-| Design + a11y (63, incl. DPR 1 / 1.25 / 2 / 3) | ✅ | — | — |
+| Suite | Per engine | Chromium | Firefox | WebKit |
+|---|---|---|---|---|
+| Behaviour, crypto, security | 123 | ✅ | ✅ | ✅ |
+| Design + a11y (DPR 1 / 1.25 / 2 / 3) | 67 | ✅ | ✅ | ✅ |
+
+**436 checks, all passing** (123 + 67 per engine, times three engines).
 
 Among the things these suites actually prove, rather than claim:
 
