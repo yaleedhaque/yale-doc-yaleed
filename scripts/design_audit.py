@@ -136,10 +136,15 @@ with sync_playwright() as p:
         page.fill("#setupPw", PW); page.fill("#setupPw2", PW); page.click("#setupGo")
         page.wait_for_selector("#app:not(.hidden)", timeout=40000)
         page.evaluate("(h)=>{const e=document.getElementById('ydPages');e.innerHTML=h;e.dispatchEvent(new Event('input',{bubbles:true}));}", SAMPLE)
-        page.wait_for_function("() => { const g=document.querySelectorAll('#guides .guide').length;"
-                               " const p=parseInt(document.getElementById('stPages').textContent||'1',10);"
-                               " const laidOut = document.getElementById('ydPages').scrollHeight > 600;"
-                               " return laidOut && g === Math.max(0, p-1); }", timeout=15000)
+        # Re-measure on every poll and wait for a real multi-page result. A fixed
+        # sleep races the engine's layout pass: on a slow runner the first read can
+        # land before the blocks have height, which would assert a bogus "1 page".
+        page.wait_for_function("""() => {
+          try { window.__yd.drawGuides(); } catch (e) {}
+          const g = document.querySelectorAll('#guides .guide').length;
+          const p = parseInt(document.getElementById('stPages').textContent || '1', 10);
+          return p >= 2 && g === p - 1;
+        }""", timeout=30000, polling=150)
         page.wait_for_timeout(250)
         m = page.evaluate(MEASURE)
         print(f"\n===== {label} (dpr {m['dpr']}) =====")
