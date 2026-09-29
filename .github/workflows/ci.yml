@@ -6,9 +6,18 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  smoke:
+  verify:
+    name: Build, lint & verify on ${{ matrix.engine }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, firefox, webkit]
     steps:
       - uses: actions/checkout@v4
 
@@ -16,13 +25,41 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Playwright + browsers
+      - name: Install Playwright
         run: |
-          pip install playwright
-          python -m playwright install chromium --with-deps
+          python -m pip install --upgrade pip playwright
+          python -m playwright install --with-deps ${{ matrix.engine }}
 
-      - name: Build blank distribution
+      - name: Assemble + structural lint
         run: python3 scripts/build.py
 
-      - name: Crypto round-trip smoke test (headless)
-        run: python3 scripts/ci_smoke.py
+      - name: Build the demo document
+        run: python3 scripts/make_demo.py
+
+      - name: Behavioural, crypto & security suite
+        run: python3 scripts/verify.py --engines ${{ matrix.engine }} --file dist/YaleDoc-Blank.ydoc.html
+
+      - name: Design & accessibility audit
+        run: python3 scripts/design_audit.py dist/YaleDoc-Blank.ydoc.html
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.engine == 'chromium'
+        with:
+          name: verify-report
+          path: build/verify/results.json
+          if-no-files-found: ignore
+
+  demo:
+    name: Shipped demo still opens
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install playwright && python -m playwright install --with-deps chromium
+      - name: Rebuild blank + demo, then decrypt the demo
+        run: |
+          python3 scripts/build.py
+          python3 scripts/make_demo.py
+          python3 scripts/check_demo.py
