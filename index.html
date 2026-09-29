@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>YaleDoc — self-encrypting documents</title>
+<meta name="description" content="One HTML file. AES-256-GCM encrypted. Opens on any device, fully offline. No install, no account, no cloud.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#B4522F">
+<meta property="og:title" content="YaleDoc — self-encrypting documents">
+<meta property="og:description" content="One HTML file. Encrypted. Opens anywhere, offline.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23B4522F'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-size='14' font-weight='700' fill='%23fff' text-anchor='middle'%3EYD%3C/text%3E%3C/svg%3E">
+<style>
+:root{
+  --paper:#F2EFE8; --surface:#FFFFFF; --surface-2:#FAF7F1;
+  --ink:#191C20; --ink-2:#5B636E; --ink-3:#6A727D;
+  --line:#E3DCD0; --accent:#B4522F; --accent-2:#98411F; --accent-soft:rgba(180,82,47,.09);
+  --brass:#9C7A2E; --ok:#2C6750; --radius:14px;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --serif:Georgia,"Iowan Old Style","Source Serif 4","Noto Serif Bengali","Times New Roman",serif;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Noto Sans Bengali",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --paper:#101215; --surface:#181B1F; --surface-2:#1E2227; --ink:#E9E5DE; --ink-2:#9CA3AD;
+  --ink-3:#838A94; --line:#2B3037; --accent:#E0805C; --accent-2:#F0946F;
+  --accent-soft:rgba(224,128,92,.14); --brass:#D3AC61; --ok:#6FBF98;
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--accent);text-underline-offset:3px}
+.wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+.seal{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:#fff;
+  font-weight:800;font-size:14px;letter-spacing:.02em;
+  background:linear-gradient(150deg,var(--accent),var(--accent-2));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 2px 6px rgba(0,0,0,.16)}
+header{padding:26px 0 8px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:19px;letter-spacing:-.02em}
+nav{margin-left:auto;display:flex;gap:18px;font-size:14px;font-weight:600;align-items:center;flex-wrap:wrap}
+nav a{color:var(--ink-2);text-decoration:none}
+nav a:hover{color:var(--accent)}
+.pill{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:7px 15px;
+  color:var(--ink)!important;font-size:13.5px}
+.pill:hover{border-color:var(--accent);color:var(--accent)!important}
+.hero{padding:64px 0 48px;position:relative}
+.hero::before{content:"";position:absolute;inset:-40px 0 auto;height:500px;z-index:-1;
+  background:radial-gradient(860px 400px at 22% 0%,var(--accent-soft),transparent 65%)}
+h1{font-family:var(--serif);font-size:clamp(36px,6.6vw,64px);line-height:1.05;letter-spacing:-.03em;
+  margin:0 0 20px;max-width:17ch;font-weight:700}
+h1 em{font-style:normal;color:var(--accent)}
+.lede{font-size:clamp(17px,2.1vw,20px);color:var(--ink-2);max-width:58ch;margin:0 0 30px;line-height:1.6}
+.cta{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.btn{display:inline-flex;align-items:center;gap:9px;height:50px;padding:0 24px;border-radius:11px;
+  font-weight:700;font-size:15px;text-decoration:none;border:1px solid var(--line);
+  background:var(--surface);color:var(--ink);
+  transition:transform .14s cubic-bezier(.22,1,.36,1),border-color .14s,background .14s}
+.btn:hover{border-color:var(--accent);transform:translateY(-1px)}
+.btn.p{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.p:hover{background:var(--accent-2);border-color:var(--accent-2)}
+code{font-family:var(--mono);font-size:.9em;background:var(--surface-2);
+  border:1px solid var(--line);border-radius:6px;padding:2px 6px}
+.hint{font-size:13.5px;color:var(--ink-3);margin:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-top:38px}
+.stat{background:var(--surface);padding:19px 22px}
+.stat b{display:block;font-size:27px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.07em;font-weight:700}
+section{padding:56px 0;border-top:1px solid var(--line)}
+h2{font-size:clamp(23px,3.3vw,31px);letter-spacing:-.022em;margin:0 0 8px;font-weight:750}
+.sub{color:var(--ink-2);margin:0 0 28px;max-width:64ch;font-size:16.5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:15px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:21px}
+.card h3{margin:0 0 7px;font-size:15.5px;font-weight:700;letter-spacing:-.01em}
+.card p{margin:0;color:var(--ink-2);font-size:14.5px;line-height:1.62}
+.card .n{display:inline-grid;place-items:center;width:29px;height:29px;border-radius:9px;
+  background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:12.5px;margin-bottom:11px}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius)}
+.tbl{width:100%;border-collapse:collapse;font-size:14.5px;min-width:520px}
+.tbl th,.tbl td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:750}
+.tbl tr:last-child td{border-bottom:0}
+.ok{color:var(--ok);font-weight:700}
+pre{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;
+  overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.65;margin:0 0 16px}
+.kbd{font-family:var(--mono);font-size:12px;background:var(--surface-2);border:1px solid var(--line);
+  border-bottom-width:2px;border-radius:5px;padding:2px 6px;white-space:nowrap}
+footer{padding:38px 0 56px;color:var(--ink-3);font-size:14px;border-top:1px solid var(--line);
+  display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+@media (max-width:640px){.wrap{padding:0 18px}.hero{padding:40px 0 32px}}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.001ms!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <span class="seal" aria-hidden="true">YD</span>
+  <span class="brand">YaleDoc</span>
+  <nav>
+    <a href="#what">What it is</a>
+    <a href="#features">Features</a>
+    <a href="#security">Security</a>
+    <a href="#verify">Verification</a>
+    <a class="pill" href="https://github.com/yaleedhaque/yale-doc-yaleed">GitHub</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <h1>One file. <em>Encrypted.</em> Opens anywhere.</h1>
+  <p class="lede">A Word-like document that is also the program that reads it.
+  Send one <code>.ydoc.html</code> to anyone — Windows, macOS, Linux, Android, iOS,
+  Chromebook — and it opens, fully offline. No install, no account, no cloud, no telemetry.</p>
+  <div class="cta">
+    <a class="btn p" href="https://github.com/yaleedhaque/yale-doc-yaleed/releases">Download YaleDoc-Blank.ydoc.html</a>
+    <a class="btn" href="https://github.com/yaleedhaque/yale-doc-yaleed">Read the source</a>
+  </div>
+  <p class="hint">Demo document password: <code>YaleDoc-Demo-2026</code> &middot; MIT licensed</p>
+  <div class="stats">
+    <div class="stat"><b>243 KB</b><span>the whole app</span></div>
+    <div class="stat"><b>0</b><span>dependencies</span></div>
+    <div class="stat"><b>0</b><span>network requests</span></div>
+    <div class="stat"><b>369</b><span>tests &times; 3 engines</span></div>
+  </div>
+</div>
+
+<section id="what">
+  <h2>What it actually is</h2>
+  <p class="sub">One HTML file containing an encrypted JSON payload, and the editor that
+  reads it. There is nothing else to install, so there is nothing else that can break.</p>
+  <div class="tblwrap">
+  <table class="tbl">
+    <thead><tr><th>Layer</th><th>Choice</th><th>Because</th></tr></thead>
+    <tbody>
+      <tr><td>Cipher</td><td>AES-256-GCM</td><td>Authenticated &mdash; a flipped bit is detected, not decrypted</td></tr>
+      <tr><td>Key derivation</td><td>PBKDF2-HMAC-SHA-256</td><td>Calibrated to <em>your</em> device at creation, then stored in the file</td></tr>
+      <tr><td>Sanitiser</td><td>Tag allow-list</td><td>Deny-lists leak; allow-lists do not. No inline CSS at all</td></tr>
+      <tr><td>Policy</td><td><code>default-src 'none'</code></td><td>The page cannot make a request, whatever the content says</td></tr>
+      <tr><td>Runtime</td><td>Your browser</td><td>Nothing to install, nothing to phone home to</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section id="features">
+  <h2>Writing</h2>
+  <p class="sub">The parts that make it feel like a real editor rather than a textarea.</p>
+  <div class="grid">
+    <div class="card"><span class="n">1</span><h3>Markdown shortcuts</h3>
+      <p>Type <code># </code>, <code>- </code>, <code>1. </code>, <code>&gt; </code>,
+         <code>[] </code> or <code>```</code> to get a heading, list, quote, to-do or code block.
+         <code>**bold**</code>, <code>*italic*</code>, <code>~~strike~~</code> and
+         <code>`code`</code> work as you type.</p></div>
+    <div class="card"><span class="n">2</span><h3>Insert menu</h3>
+      <p>Type <code>/</code> anywhere for headings, lists, tables, images, links, dividers
+         and page breaks. Filters as you type, driven by the arrow keys.</p></div>
+    <div class="card"><span class="n">3</span><h3>Tables that behave</h3>
+      <p>A floating bar appears when your cursor enters a table: add or remove rows and
+         columns, toggle the header row, delete the table. <span class="kbd">Tab</span> moves
+         between cells.</p></div>
+    <div class="card"><span class="n">4</span><h3>To-do lists</h3>
+      <p>Real checkboxes whose state lives in the document, so your list is still ticked
+         when you reopen the file on another device.</p></div>
+    <div class="card"><span class="n">5</span><h3>Images, embedded</h3>
+      <p>Button, drag-and-drop or paste. Resized and re-encoded in your browser and stored
+         inside the ciphertext. Nothing is uploaded, ever.</p></div>
+    <div class="card"><span class="n">6</span><h3>Find &amp; replace</h3>
+      <p>Highlighting through the CSS Custom Highlight API where it exists, with a
+         <code>&lt;mark&gt;</code> fallback &mdash; and it never damages your text.</p></div>
+  </div>
+  <h2 style="margin-top:44px">Keeping and recovering work</h2>
+  <div class="grid">
+    <div class="card"><span class="n">7</span><h3>Version history</h3>
+      <p>Every save stores the previous version as an encrypted snapshot <em>inside the
+         file</em>. Undo survives closing the tab, reopening, and emailing it to yourself.</p></div>
+    <div class="card"><span class="n">8</span><h3>Attachments</h3>
+      <p>Drop in a PDF or a zip. It is encrypted into the document and written back out on
+         save. A size meter keeps the file honest.</p></div>
+    <div class="card"><span class="n">9</span><h3>Save in place</h3>
+      <p>On Chrome and Edge, <span class="kbd">Ctrl</span>+<span class="kbd">S</span> overwrites
+         the same file instead of filling your Downloads with
+         <code>document (3).html</code>.</p></div>
+    <div class="card"><span class="n">10</span><h3>Never lose text</h3>
+      <p>An unsaved-changes guard on tab close, a global error boundary, and a save failure
+         that reports itself and keeps your document exactly where it was.</p></div>
+  </div>
+  <h2 style="margin-top:44px">Reading and looking</h2>
+  <div class="grid">
+    <div class="card"><span class="n">11</span><h3>Measured page guides</h3>
+      <p>The status bar reports the real page count and the margins show where the printed
+         page actually breaks &mdash; A4 or US Letter.</p></div>
+    <div class="card"><span class="n">12</span><h3>Three themes, real dark mode</h3>
+      <p>Paper, ink and sepia, each with a declared <code>color-scheme</code> so scrollbars
+         and form controls match. Verified for contrast, not eyeballed.</p></div>
+    <div class="card"><span class="n">13</span><h3>Focus and reading modes</h3>
+      <p>Plus zoom, a live outline built from your headings, word and reading-time counts,
+         and four document fonts.</p></div>
+    <div class="card"><span class="n">14</span><h3>English and বাংলা</h3>
+      <p>The whole interface, including the setup and lock screens, in both languages.</p></div>
+  </div>
+</section>
+
+<section id="security">
+  <h2>Security</h2>
+  <p class="sub">The document's Content-Security-Policy is <code>default-src 'none'</code>,
+  and its only script is allowed by a nonce baked in at build time. So a pasted
+  <code>&lt;script&gt;</code> cannot execute even if it somehow survived sanitising.</p>
+<pre>default-src 'none';
+script-src 'nonce-&lt;128-bit random, baked at build&gt;';
+style-src  'unsafe-inline';
+img-src    data: blob:;
+connect-src 'none';
+base-uri   'none';  form-action 'none';  frame-src 'none';  object-src 'none';</pre>
+  <p class="hint">The full threat model &mdash; including what is deliberately
+  <em>not</em> claimed &mdash; is in
+  <a href="https://github.com/yaleedhaque/yale-doc-yaleed/blob/main/docs/SECURITY.md">docs/SECURITY.md</a>.</p>
+</section>
+
+<section id="verify">
+  <h2>Verified, not asserted</h2>
+  <p class="sub">Every claim on this page is checked by a test that runs in CI on all three
+  independent browser engines.</p>
+  <div class="tblwrap">
+  <table class="tbl">
+    <thead><tr><th>Suite</th><th>Chromium</th><th>Firefox</th><th>WebKit</th></tr></thead>
+    <tbody>
+      <tr><td>Behaviour, crypto &amp; security &mdash; 123 checks each</td>
+          <td class="ok">pass</td><td class="ok">pass</td><td class="ok">pass</td></tr>
+      <tr><td>Design &amp; accessibility &mdash; 4 viewports, 4 DPRs, 3 themes</td>
+          <td class="ok">pass</td><td>&mdash;</td><td>&mdash;</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="tblwrap" style="margin-top:16px">
+  <table class="tbl">
+    <thead><tr><th>What the suite proves</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>19 XSS vectors: script tags, event handlers, encoded <code>javascript:</code>,
+          <code>data:text/html</code> links, full-viewport spoofing overlays, SVG/MathML mutation,
+          <code>&lt;base&gt;</code>, <code>srcset</code>, id-clobbering, nonce forgery</td>
+          <td class="ok">all neutralised</td></tr>
+      <tr><td>Tampering with the salt, the iteration count, the IV or the ciphertext</td>
+          <td class="ok">all rejected</td></tr>
+      <tr><td>A v1 document opens in v2, and re-saving upgrades it in place</td>
+          <td class="ok">works</td></tr>
+      <tr><td>A saved file leaks no title, theme, language or page geometry before unlock</td>
+          <td class="ok">verified</td></tr>
+      <tr><td>Pressing <b>Bold</b> with no selection does <em>not</em> bold the whole document
+          (a real data-corruption bug in v1)</td>
+          <td class="ok">fixed</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<footer>
+  <span class="seal" aria-hidden="true" style="width:30px;height:30px;border-radius:9px;font-size:11px">YD</span>
+  <span>YaleDoc &middot; MIT &copy; <a href="https://github.com/yaleedhaque">Md. Yaleed Haque</a></span>
+  <span style="margin-left:auto"><a href="https://github.com/yaleedhaque/yale-doc-yaleed">Source</a> &middot;
+  <a href="https://github.com/yaleedhaque/yale-doc-yaleed/releases">Downloads</a> &middot;
+  <a href="https://github.com/yaleedhaque/yale-doc-yaleed/blob/main/docs/USER-GUIDE.md">Guide</a></span>
+</footer>
+</div>
+</body>
+</html>
