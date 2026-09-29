@@ -87,6 +87,12 @@ function focusables(root) {
 function openDialog(opts) {
   const host = $("dlgHost");
   const prev = document.activeElement;
+  /* A bare `close()` in this scope resolves to the GLOBAL window.close() — the
+     tab-closing function — because an object-literal method is not a binding in
+     the enclosing scope. Firefox honours it and tears the document down, losing
+     the user's work; Chromium and WebKit silently no-op it, which is why it
+     survived every other engine. Bind the real one up front. */
+  let close = () => { };
   const scrim = mk("div", { class: "scrim", role: "dialog", "aria-modal": "true", "aria-label": opts.title || "Dialog" });
   const dlg = mk("div", { class: "dlg" + (opts.cls ? " " + opts.cls : "") });
   const head = mk("div", { class: "dlg-h" }, [
@@ -133,6 +139,7 @@ function openDialog(opts) {
       else if (!e.shiftKey && (document.activeElement === last || !dlg.contains(document.activeElement))) { e.preventDefault(); first.focus(); }
     }
   }
+  close = api.close.bind(api);
   scrim.addEventListener("mousedown", e => { if (e.target === scrim && !opts.noDismiss) api.close(); });
   host.classList.remove("hidden");
   openStack.push(api);
@@ -145,6 +152,10 @@ function openDialog(opts) {
   });
   return api;
 }
+/* Belt and braces: this document was never script-opened, so window.close() must
+   not be able to tear it down even if some future path reaches for it. */
+try { window.close = function () { /* intentionally inert */ }; } catch (e) { }
+
 function closeTopDialog() { if (openStack.length) { openStack[openStack.length - 1].close(); return true; } return false; }
 
 function confirmDlg(o) {

@@ -36,6 +36,28 @@ def chk(name: str, ok: bool, detail: str = "") -> bool:
     return ok
 
 
+def _strip_comments(text: str) -> str:
+    """Remove /* */ and // comments so lint never matches its own prose."""
+    text = _re_block(text)
+    return text
+
+
+def _re_block(text: str) -> str:
+    import re as _r
+    out, i, n = [], 0, len(text)
+    while i < n:
+        if text.startswith("/*", i):
+            j = text.find("*/", i + 2)
+            i = n if j < 0 else j + 2
+            continue
+        if text.startswith("//", i):
+            j = text.find("\n", i)
+            i = n if j < 0 else j
+            continue
+        out.append(text[i]); i += 1
+    return "".join(out)
+
+
 def lint(html: str) -> None:
     csp = re.search(r'<meta http-equiv="Content-Security-Policy" content="([^"]*)"', html)
     chk("CSP meta present", bool(csp))
@@ -74,6 +96,27 @@ def lint(html: str) -> None:
     chk("colour-scheme declared", 'name="color-scheme"' in html)
     chk("a <noscript> fallback exists", "<noscript>" in html)
     chk("reduced-motion honoured", "prefers-reduced-motion" in html)
+
+    # --- the window.close class of bug -------------------------------------
+    # A bare `close()` inside a function that defines `close()` as an object-literal
+    # METHOD does not resolve to that method: it falls through to the global
+    # window.close() and closes the tab. Firefox honours it, Chromium and WebKit
+    # ignore it, so only a click-everything sweep on Firefox finds it.
+    code = _strip_comments(html)
+    chk("the app never calls window.close()", "window.close(" not in code.replace("window.close = function", ""))
+    chk("window.close() is neutralised defensively", "window.close = function" in html)
+    chk("openDialog binds a real local `close`", "let close = () =>" in html)
+
+    # --- every dynamically created button must declare a type ---------------
+    src = "".join((ROOT / "source" / "parts" / n).read_text(encoding="utf-8")
+                  for n in ("03_core.js", "04_ui.js", "05_editor.js", "06_io.js"))
+    import re as _re
+    missing = []
+    for m in _re.finditer(r'mk\("button",\s*\{', src):
+        seg = src[m.end():m.end() + 300]
+        if not _re.search(r"\btype\s*:", seg):
+            missing.append(src[:m.start()].count("\n") + 1)
+    chk("every created button declares type", not missing, f"lines {missing[:5]}")
 
 
 def main() -> int:
