@@ -215,7 +215,7 @@ with sync_playwright() as p:
     page.wait_for_selector("#app:not(.hidden)", timeout=40000)
     page.evaluate("(h)=>{const e=document.getElementById('ydPages');e.innerHTML=h;e.dispatchEvent(new Event('input',{bubbles:true}));}", SAMPLE)
     print("\n===== themes =====")
-    for th in ["paper", "ink", "sepia"]:
+    for th in ["paper", "ink", "sepia", "contrast"]:
         page.evaluate("(t)=>{window.__yd.state.doc.settings.theme=t;window.__yd.applySettings();}", th)
         page.wait_for_timeout(250)
         page.evaluate("() => { try { getSelection().removeAllRanges(); } catch (e) {} }")
@@ -225,6 +225,9 @@ with sync_playwright() as p:
         cs = page.evaluate("()=>({scheme:getComputedStyle(document.documentElement).colorScheme, body:getComputedStyle(document.body).backgroundColor, ink:getComputedStyle(document.body).color})")
         chk(f"theme {th}: contrast >= 4.5:1", not bad, [(r["name"], r["ratio"]) for r in bad][:3])
         chk(f"theme {th}: color-scheme declared", cs["scheme"] in ("light", "dark"), cs["scheme"])
+        weak = [r for r in c if r["ratio"] < 7.0]
+        chk(f"theme {th}: all measured text >= 7:1 (AAA)", not weak,
+            [(r["name"], r["ratio"], r.get("fg"), r.get("bg")) for r in weak][:4])
     # reduced motion
     ctx2 = b.new_context(viewport={"width": 1440, "height": 900}, reduced_motion="reduce")
     p2 = ctx2.new_page(); p2.goto("file://" + APP); p2.wait_for_timeout(500)

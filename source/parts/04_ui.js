@@ -434,7 +434,7 @@ function optGroup(id, items, cur, onPick) {
     box.appendChild(b);
   });
 }
-const THEME_LABEL = { paper: "paper", ink: "ink", sepia: "sepia" };
+const THEME_LABEL = { paper: "paper", ink: "ink", sepia: "sepia", contrast: "contrast" };
 let settingsBound = false;
 function syncSettingsUI() {
   if (!state.doc) return;
