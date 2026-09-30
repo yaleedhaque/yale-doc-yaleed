@@ -232,28 +232,59 @@ function insertTable(rows, cols) {
   if (t) { const c = t.querySelector("td,th"); if (c) focusNode(c); }
 }
 function tablePicker() {
+  const MAX_R = 8, MAX_C = 10, DEF_R = 3, DEF_C = 3;
+  let r = DEF_R, c = DEF_C;              /* never zero: Insert always inserts */
   const wrap = mk("div");
-  const grid = mk("div", { id: "tblPick" });
-  const label = mk("div", { id: "tblLabel", text: "0 × 0" });
-  let r = 0, c = 0;
+  const grid = mk("div", { id: "tblPick", role: "grid", "aria-label": "Table size" });
+  const label = mk("div", { id: "tblLabel", role: "status", "aria-live": "polite" });
   const cells = [];
-  for (let y = 0; y < 8; y++) for (let x = 0; x < 10; x++) { const i = mk("i", { "data-r": String(y + 1), "data-c": String(x + 1) }); cells.push(i); grid.appendChild(i); }
-  grid.addEventListener("mousemove", (e) => {
-    const i = e.target; if (!i || i.tagName !== "I") return;
-    r = Number(i.dataset.r); c = Number(i.dataset.c);
-    for (const x of cells) x.classList.toggle("on", Number(x.dataset.r) <= r && Number(x.dataset.c) <= c);
+  const rows = [];
+  for (let y = 0; y < MAX_R; y++) {
+    const row = [];
+    for (let x = 0; x < MAX_C; x++) {
+      const i = mk("button", {
+        type: "button", class: "cell", role: "gridcell", "data-r": String(y + 1), "data-c": String(x + 1),
+        tabindex: "-1", "aria-label": (y + 1) + " rows by " + (x + 1) + " columns",
+      });
+      i.addEventListener("click", (ev) => { ev.preventDefault(); set(y + 1, x + 1); });
+      i.addEventListener("pointerenter", () => set(y + 1, x + 1));
+      i.addEventListener("pointerdown", () => set(y + 1, x + 1));
+      i.addEventListener("keydown", (ev) => {
+        const k = ev.key, dy = k === "ArrowDown" ? 1 : k === "ArrowUp" ? -1 : 0;
+        const dx = k === "ArrowRight" ? 1 : k === "ArrowLeft" ? -1 : 0;
+        if (!dy && !dx) return;
+        ev.preventDefault();
+        const ny = clamp(y + 1 + dy, 1, MAX_R), nx = clamp(x + 1 + dx, 1, MAX_C);
+        set(ny, nx, true);
+      });
+      cells.push(i); row.push(i); grid.appendChild(i);
+    }
+    rows.push(row);
+  }
+  function set(nr, nc, focus) {
+    r = clamp(nr, 1, MAX_R); c = clamp(nc, 1, MAX_C);
+    for (const x of cells) {
+      const on = Number(x.dataset.r) <= r && Number(x.dataset.c) <= c;
+      x.classList.toggle("on", on);
+      x.setAttribute("aria-selected", String(Number(x.dataset.r) === r && Number(x.dataset.c) === c));
+    }
     label.textContent = r + " × " + c + (LANG === "bn" ? " টেবিল" : " table");
-  });
-  grid.addEventListener("mouseleave", () => { for (const x of cells) x.classList.remove("on"); label.textContent = "0 × 0"; });
-  wrap.appendChild(grid); wrap.appendChild(label);
-  const d = openDialog({
+    if (focus) { const t = rows[r - 1][c - 1]; t.tabIndex = 0; cells.forEach(x => { if (x !== t) x.tabIndex = -1; }); t.focus(); }
+  }
+  const first = rows[0][0]; first.tabIndex = 0;
+  set(DEF_R, DEF_C);
+  wrap.appendChild(grid);
+  wrap.appendChild(label);
+  wrap.appendChild(mk("p", { class: "hint", style: "margin-top:8px",
+    text: LANG === "bn" ? "আঙুলে ট্যাপ করুন বা তীরচিহ্ন চাপুন।" : "Tap a cell, or use the arrow keys. Enter accepts the current size." }));
+  openDialog({
     title: LANG === "bn" ? "টেবিল ঢোকান" : "Insert table", cls: "narrow", body: wrap,
     actions: [
       { label: LANG === "bn" ? "বাতিল" : "Cancel" },
-      { label: LANG === "bn" ? "ঢোকান" : "Insert", kind: "primary", onClick: c2 => { if (r > 0) insertTable(r, c); c2(); } },
+      { label: LANG === "bn" ? "ঢোকান" : "Insert", kind: "primary", onClick: (cl) => { insertTable(r, c); cl(); } },
     ],
+    onOpen: () => { first.focus(); },
   });
-  return d;
 }
 function caretTable() { const b = caretBlock(); return b ? b.closest("table") : null; }
 function caretImage() {

@@ -42,10 +42,10 @@
   color-scheme:light;
   --bg:#F2EFE8; --surface:#FFFFFF; --surface-2:#FAF7F1; --surface-3:#F5F1E8;
   --ink:#191C20; --ink-2:#494F58; --ink-3:#494F58;
-  --line:#E3DCD0; --line-2:#EFEAE1;
-  --accent:#B4522F; --accent-ink:#FFFFFF; --accent-2:#98411F; --accent-soft:rgba(180,82,47,.09);
-  --brass:#7A5C14; --ok:#1F5540; --ok-soft:rgba(31,85,64,.12);
-  --warn:#7A520A; --warn-soft:rgba(122,82,10,.14);
+  --line:#DCD3C4; --line-2:#E7E0D2;
+  --accent:#8A3D22; --accent-ink:#FFFFFF; --accent-2:#6E2E19; --accent-soft:rgba(138,61,34,.11);
+  --brass:#6B5110; --ok:#1B4E3B; --ok-soft:rgba(31,85,64,.12);
+  --warn:#6E4A08; --warn-soft:rgba(122,82,10,.14);
   --danger:#8E1F17; --danger-soft:rgba(142,31,23,.12);
   --page:#FFFFFF; --page-ink:#191C20;
   --scrim:rgba(24,20,14,.46);
@@ -60,8 +60,8 @@
   color-scheme:dark;
   --bg:#101215; --surface:#181B1F; --surface-2:#1E2227; --surface-3:#24282E;
   --ink:#F2EFE9; --ink-2:#B4BAC2; --ink-3:#B4BAC2;
-  --line:#2B3037; --line-2:#22262C;
-  --accent:#E0805C; --accent-ink:#231106; --accent-2:#F0946F; --accent-soft:rgba(224,128,92,.14);
+  --line:#39404A; --line-2:#2A3037;
+  --accent:#EDA184; --accent-ink:#1A0C04; --accent-2:#F6B99F; --accent-soft:rgba(237,161,132,.18);
   --brass:#E3C078; --ok:#84D2AA; --ok-soft:rgba(132,210,170,.16);
   --warn:#EEC377; --warn-soft:rgba(238,195,119,.16);
   --danger:#F79E95; --danger-soft:rgba(247,158,149,.16);
@@ -78,10 +78,10 @@
   color-scheme:light;
   --bg:#E5DAC0; --surface:#F7F0DE; --surface-2:#F1E9D5; --surface-3:#EBE2CB;
   --ink:#33291A; --ink-2:#4B4130; --ink-3:#4B4130;
-  --line:#D2C2A0; --line-2:#E0D4B8;
-  --accent:#8A4513; --accent-ink:#FFF8EC; --accent-2:#6E350C; --accent-soft:rgba(138,69,19,.10);
-  --brass:#6B5110; --ok:#2E5531; --ok-soft:rgba(46,85,49,.14);
-  --warn:#6B4B0C; --warn-soft:rgba(107,75,12,.14);
+  --line:#C7B48C; --line-2:#DBCBA6;
+  --accent:#6A350F; --accent-ink:#FFF8EC; --accent-2:#52280A; --accent-soft:rgba(106,53,15,.13);
+  --brass:#5F4710; --ok:#2A4E2D; --ok-soft:rgba(46,85,49,.14);
+  --warn:#5E430A; --warn-soft:rgba(107,75,12,.14);
   --danger:#7A2113; --danger-soft:rgba(122,33,19,.12);
   --page:#FCF7E9; --page-ink:#372D1D;
   --scrim:rgba(56,42,20,.42);
@@ -665,9 +665,14 @@ body[data-theme="ink"] .toast{background:var(--surface-3);color:var(--ink);borde
 #findbar .iconbtn{width:29px;height:29px}
 
 /* ---------- table picker ---------- */
-#tblPick{display:grid;grid-template-columns:repeat(10,1fr);gap:2px;padding:6px;background:var(--surface-2);border-radius:var(--r-sm);width:max-content}
-#tblPick i{width:15px;height:15px;border:1px solid var(--line);border-radius:2px;background:var(--surface);cursor:pointer}
-#tblPick i.on{border-color:var(--accent);background:var(--accent-soft)}
+#tblPick{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:3px;padding:8px;
+  background:var(--surface-2);border:1px solid var(--line-2);border-radius:var(--r-sm);width:min(100%,330px)}
+#tblPick .cell{width:100%;aspect-ratio:1;min-height:22px;border:1px solid var(--line);border-radius:3px;
+  background:var(--surface);cursor:pointer;padding:0}
+#tblPick .cell:hover{border-color:var(--ink-3)}
+#tblPick .cell.on{border-color:var(--accent);background:var(--accent-soft)}
+#tblPick .cell[aria-selected="true"]{outline:2px solid var(--accent);outline-offset:1px}
+@media (pointer:coarse){#tblPick .cell{min-height:30px}#tblPick{gap:4px;width:min(100%,360px)}}
 #tblLabel{font-size:11.5px;color:var(--ink-2);text-align:center;margin-top:5px;font-weight:650}
 
 /* ---------- reading / focus ---------- */

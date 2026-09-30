@@ -212,6 +212,64 @@ def run_engine(p, eng, app):
     page.wait_for_timeout(250)
     chk("second press unticks the whole to-do list", page.evaluate("()=>{const u=document.querySelector('#ydPages ul[data-todo]');return !!u && Array.from(u.children).every(li=>li.getAttribute('data-done')==='0')}"))
 
+    section(f"{eng} · table picker (regression: used to insert nothing)")
+    def tbl_reset(content="<p>before</p><p>after</p>"):
+        page.evaluate("(c)=>{const e=document.getElementById('ydPages');e.innerHTML=c;"
+                      "e.dispatchEvent(new Event('input',{bubbles:true}));e.focus();"
+                      "const r=document.createRange();r.selectNodeContents(e.querySelector('p'));r.collapse(true);"
+                      "const s=getSelection();s.removeAllRanges();s.addRange(r);}", content)
+    def tbl_shape():
+        return page.evaluate("""() => { const t = document.querySelector('#ydPages table');
+          if (!t) return null;
+          const rows = t.querySelectorAll('tbody tr');
+          return { r: rows.length, c: rows[0] ? rows[0].cells.length : 0,
+                   head: t.querySelectorAll('thead th').length }; }""")
+    tbl_reset(); page.click("#bTable"); page.wait_for_timeout(400)
+    page.click("#dlgHost .scrim .btn.primary"); page.wait_for_timeout(500)
+    sh = tbl_shape()
+    chk("Insert with NO interaction still inserts a table", bool(sh), str(sh))
+    chk("default table is 3x3 with a header row", bool(sh) and sh["r"] == 3 and sh["c"] == 3 and sh["head"] == 3, str(sh))
+    chk("existing text survives table insertion", "after" in page.inner_text("#ydPages"))
+    chk("the picker closes after inserting", page.evaluate("()=>!document.querySelector('#dlgHost .scrim')"))
+    tbl_reset(); page.click("#bTable"); page.wait_for_timeout(400)
+    chk("picker advertises a size immediately", "3" in (page.text_content("#tblLabel") or ""), page.text_content("#tblLabel"))
+    cells = page.query_selector_all("#tblPick .cell")
+    chk("picker cells are real focusable controls", bool(cells) and cells[0].evaluate("e=>e.tagName") == "BUTTON",
+        cells[0].evaluate("e=>e.tagName") if cells else "none")
+    cells[33].click(); page.wait_for_timeout(250)
+    chk("clicking a cell selects 4x4", "4" in (page.text_content("#tblLabel") or ""), page.text_content("#tblLabel"))
+    page.click("#dlgHost .scrim .btn.primary"); page.wait_for_timeout(500)
+    sh = tbl_shape()
+    chk("clicked size is what gets inserted", bool(sh) and sh["r"] == 4 and sh["c"] == 4, str(sh))
+    tbl_reset(); page.click("#bTable"); page.wait_for_timeout(400)
+    for _ in range(4):
+        page.keyboard.press("ArrowRight")
+    page.keyboard.press("ArrowDown"); page.wait_for_timeout(200)
+    klabel = page.text_content("#tblLabel")
+    page.click("#dlgHost .scrim .btn.primary"); page.wait_for_timeout(500)
+    sh = tbl_shape()
+    chk("arrow keys drive the size (no mouse needed)", bool(sh) and sh["c"] == 5 and sh["r"] == 2, f"{klabel} -> {sh}")
+
+    section(f"{eng} · dialogs must never close the document (regression)")
+    page.evaluate("()=>{window.__yd.state.dirty=false;}")
+    DLG = ("() => window.__yd.openDialog({title:'probe', body:document.createElement('div'), "
+           "actions:[{label:'Cancel'},{label:'Go', kind:'primary'}]})")
+    for sel, name in [("#dlgHost .scrim .btn.primary", "primary action"),
+                      ("#dlgHost .scrim .btn:not(.primary)", "cancel"),
+                      ("#dlgHost .scrim .dlg-h .x", "close button")]:
+        page.evaluate("() => document.getElementById('dlgHost').textContent = ''")
+        page.evaluate(DLG)
+        page.wait_for_timeout(300)
+        try:
+            page.click(sel, timeout=5000, force=True)
+            page.wait_for_timeout(400)
+            alive = page.evaluate("()=>!!document.getElementById('ydPages')")
+            gone = page.evaluate("()=>!document.querySelector('#dlgHost .scrim')")
+            detail = "" if (alive and gone) else f"alive={alive} dialogClosed={gone}"
+        except Exception as e:
+            alive, gone, detail = False, False, str(e).split("\n")[0][:60]
+        chk(f"dialog {name}: document survives AND dialog closes", alive and gone, detail)
+
     section(f"{eng} · sanitizer / XSS")
     SAN = r"""(vectors) => vectors.map(v => {
       let html;

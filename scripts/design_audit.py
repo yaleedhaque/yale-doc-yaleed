@@ -25,18 +25,21 @@ _P = ("A document format should outlive the application that writes it, and a go
       "feel like a sheet of paper rather than a control panel. Every decision here follows from one "
       "constraint: the file is the program, so there is no runtime to install, no server to reach, "
       "and no plaintext allowed to touch the disk at any point in the pipeline. ")
-SAMPLE = ("<h1>The Architecture of Small Software</h1><p>Good tools disappear. The best ones are "
-          "<strong>unremarkable</strong> until the moment you need them, and then they are the only "
-          "thing that matters.</p><blockquote><p>A document format should outlive the application "
-          "that writes it.</p></blockquote><h2>1. Constraints first</h2>"
-          + "<p>" + _P * 3 + "</p>"
-          + "<ul><li>Encryption is the default, never a toggle.</li>"
-            "<li>Every save re-randomises the initialisation vector.</li>"
-            "<li>No plaintext ever reaches the filesystem.</li></ul>"
-          + "<h2>2. The table is the thing</h2><p>" + _P * 3 + "</p>"
-          + "<table><thead><tr><th>Layer</th><th>Choice</th></tr></thead><tbody>"
-            "<tr><td>Cipher</td><td>AES-256-GCM</td></tr><tr><td>KDF</td><td>PBKDF2-SHA-256</td></tr>"
-            "</tbody></table><p>" + _P * 2 + "</p>")
+SAMPLE = (
+    "<h1>The Architecture of Small Software</h1>"
+    "<p>Good tools disappear. The best ones are <strong>unremarkable</strong> until the moment "
+    "you need them, and then they are the only thing that matters.</p>"
+    "<blockquote><p>A document format should outlive the application that writes it.</p></blockquote>"
+    "<h2>1. Constraints first</h2><p>" + _P * 3 + "</p>"
+    "<ul><li>Encryption is the default, never a toggle.</li>"
+    "<li>Every save re-randomises the initialisation vector.</li>"
+    "<li>No plaintext ever reaches the filesystem.</li></ul>"
+    "<h2>2. The table is the thing</h2>"
+    '<p>See <a href="https://example.com">the reference</a> and '
+    '<a href="https://example.com/2">another link</a>.</p><p>' + _P * 3 + "</p>"
+    "<table><thead><tr><th>Layer</th><th>Choice</th></tr></thead><tbody>"
+    "<tr><td>Cipher</td><td>AES-256-GCM</td></tr><tr><td>KDF</td><td>PBKDF2-SHA-256</td></tr>"
+    "</tbody></table><p>" + _P * 2 + "</p>")
 
 MEASURE = r"""() => {
   const px = (el, p) => parseFloat(getComputedStyle(el)[p]) || 0;
