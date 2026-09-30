@@ -116,7 +116,7 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius
   Send one <code>.ydoc.html</code> to anyone — Windows, macOS, Linux, Android, iOS,
   Chromebook — and it opens, fully offline. No install, no account, no cloud, no telemetry.</p>
   <div class="cta">
-    <a class="btn p" href="https://github.com/yaleedhaque/yale-doc-yaleed/releases">Download YaleDoc-Blank.ydoc.html</a>
+    <a class="btn p" href="https://github.com/yaleedhaque/yale-doc-yaleed/releases/download/v2.0.1/YaleDoc-Blank.ydoc.html">Download YaleDoc-Blank.ydoc.html</a>
     <a class="btn" href="https://github.com/yaleedhaque/yale-doc-yaleed">Read the source</a>
   </div>
   <p class="hint">Demo document password: <code>YaleDoc-Demo-2026</code> &middot; MIT licensed</p>
@@ -124,7 +124,7 @@ a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius
     <div class="stat"><b>243 KB</b><span>the whole app</span></div>
     <div class="stat"><b>0</b><span>dependencies</span></div>
     <div class="stat"><b>0</b><span>network requests</span></div>
-    <div class="stat"><b>436</b><span>tests, 3 engines</span></div>
+    <div class="stat"><b>459</b><span>tests, 3 engines</span></div>
   </div>
 </div>
 
@@ -223,14 +223,14 @@ base-uri   'none';  form-action 'none';  frame-src 'none';  object-src 'none';</
 <section id="verify">
   <h2>Verified, not asserted</h2>
   <p class="sub">Every claim on this page is checked by a test that runs in CI on all three
-  independent browser engines &mdash; 436 checks in total, all passing.</p>
+  independent browser engines &mdash; 459 checks in total, all passing &mdash; and every one of the four themes clears WCAG AAA for text.</p>
   <div class="tblwrap">
   <table class="tbl">
     <thead><tr><th>Suite</th><th>Chromium</th><th>Firefox</th><th>WebKit</th></tr></thead>
     <tbody>
       <tr><td>Behaviour, crypto &amp; security &mdash; 123 checks</td>
           <td class="ok">pass</td><td class="ok">pass</td><td class="ok">pass</td></tr>
-      <tr><td>Design &amp; accessibility &mdash; 67 checks, 4 viewports, 4 DPRs, 3 themes</td>
+      <tr><td>Design &amp; accessibility &mdash; 73 checks, 4 viewports, 4 DPRs, 4 themes</td>
           <td class="ok">pass</td><td class="ok">pass</td><td class="ok">pass</td></tr>
     </tbody>
   </table>
@@ -252,6 +252,12 @@ base-uri   'none';  form-action 'none';  frame-src 'none';  object-src 'none';</
       <tr><td>Pressing <b>Bold</b> with no selection does <em>not</em> bold the whole document
           (a real data-corruption bug in v1)</td>
           <td class="ok">fixed</td></tr>
+      <tr><td>Clicking any dialog button leaves the document alive with its text intact
+          (a <code>window.close()</code> leak that only Firefox honoured)</td>
+          <td class="ok">fixed</td></tr>
+      <tr><td>Every theme clears <strong>WCAG AAA (7:1)</strong> for body, headings,
+          quotes, muted chrome and status text</td>
+          <td class="ok">pass</td></tr>
     </tbody>
   </table>
   </div>
@@ -261,7 +267,7 @@ base-uri   'none';  form-action 'none';  frame-src 'none';  object-src 'none';</
   <span class="seal" aria-hidden="true" style="width:30px;height:30px;border-radius:9px;font-size:11px">YD</span>
   <span>YaleDoc &middot; MIT &copy; <a href="https://github.com/yaleedhaque">Md. Yaleed Haque</a></span>
   <span style="margin-left:auto"><a href="https://github.com/yaleedhaque/yale-doc-yaleed">Source</a> &middot;
-  <a href="https://github.com/yaleedhaque/yale-doc-yaleed/releases">Downloads</a> &middot;
+  <a href="https://github.com/yaleedhaque/yale-doc-yaleed/releases/download/v2.0.1/YaleDoc-Blank.ydoc.html">Downloads</a> &middot;
   <a href="https://github.com/yaleedhaque/yale-doc-yaleed/blob/main/docs/USER-GUIDE.md">Guide</a></span>
 </footer>
 </div>

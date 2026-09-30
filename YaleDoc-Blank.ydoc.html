@@ -9,7 +9,7 @@
 <meta name="author" content="Md. Yaleed Haque">
 <meta name="application-name" content="YaleDoc">
 <meta name="format-detection" content="telephone=no">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-79fc3bf6abd3e5b3d566022bd03fd2c0'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; worker-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; manifest-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'nonce-044f8160ea7a1979d785653040361f59'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:; media-src data: blob:; worker-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; manifest-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta property="og:title" content="YaleDoc — Encrypted Document">
@@ -41,12 +41,12 @@
 :root,[data-theme="paper"]{
   color-scheme:light;
   --bg:#F2EFE8; --surface:#FFFFFF; --surface-2:#FAF7F1; --surface-3:#F5F1E8;
-  --ink:#191C20; --ink-2:#5B636E; --ink-3:#6A727D;
+  --ink:#191C20; --ink-2:#494F58; --ink-3:#494F58;
   --line:#E3DCD0; --line-2:#EFEAE1;
   --accent:#B4522F; --accent-ink:#FFFFFF; --accent-2:#98411F; --accent-soft:rgba(180,82,47,.09);
-  --brass:#9C7A2E; --ok:#2C6750; --ok-soft:rgba(44,103,80,.10);
-  --warn:#9A6A12; --warn-soft:rgba(154,106,18,.12);
-  --danger:#A62B22; --danger-soft:rgba(166,43,34,.10);
+  --brass:#7A5C14; --ok:#1F5540; --ok-soft:rgba(31,85,64,.12);
+  --warn:#7A520A; --warn-soft:rgba(122,82,10,.14);
+  --danger:#8E1F17; --danger-soft:rgba(142,31,23,.12);
   --page:#FFFFFF; --page-ink:#191C20;
   --scrim:rgba(24,20,14,.46);
   --shadow-1:0 1px 2px rgba(28,24,18,.06),0 1px 3px rgba(28,24,18,.05);
@@ -59,12 +59,12 @@
 [data-theme="ink"]{
   color-scheme:dark;
   --bg:#101215; --surface:#181B1F; --surface-2:#1E2227; --surface-3:#24282E;
-  --ink:#E9E5DE; --ink-2:#9CA3AD; --ink-3:#838A94;
+  --ink:#F2EFE9; --ink-2:#B4BAC2; --ink-3:#B4BAC2;
   --line:#2B3037; --line-2:#22262C;
   --accent:#E0805C; --accent-ink:#231106; --accent-2:#F0946F; --accent-soft:rgba(224,128,92,.14);
-  --brass:#D3AC61; --ok:#6FBF98; --ok-soft:rgba(111,191,152,.14);
-  --warn:#E0B25C; --warn-soft:rgba(224,178,92,.14);
-  --danger:#F08A80; --danger-soft:rgba(240,138,128,.14);
+  --brass:#E3C078; --ok:#84D2AA; --ok-soft:rgba(132,210,170,.16);
+  --warn:#EEC377; --warn-soft:rgba(238,195,119,.16);
+  --danger:#F79E95; --danger-soft:rgba(247,158,149,.16);
   --page:#171A1E; --page-ink:#E7E3DC;
   --scrim:rgba(0,0,0,.62);
   --shadow-1:0 1px 2px rgba(0,0,0,.4);
@@ -77,12 +77,12 @@
 [data-theme="sepia"]{
   color-scheme:light;
   --bg:#E5DAC0; --surface:#F7F0DE; --surface-2:#F1E9D5; --surface-3:#EBE2CB;
-  --ink:#372D1D; --ink-2:#6B5D42; --ink-3:#75674C;
+  --ink:#33291A; --ink-2:#4B4130; --ink-3:#4B4130;
   --line:#D2C2A0; --line-2:#E0D4B8;
   --accent:#8A4513; --accent-ink:#FFF8EC; --accent-2:#6E350C; --accent-soft:rgba(138,69,19,.10);
-  --brass:#8A6A22; --ok:#3D6640; --ok-soft:rgba(61,102,64,.12);
-  --warn:#8A6412; --warn-soft:rgba(138,100,18,.12);
-  --danger:#952B18; --danger-soft:rgba(149,43,24,.10);
+  --brass:#6B5110; --ok:#2E5531; --ok-soft:rgba(46,85,49,.14);
+  --warn:#6B4B0C; --warn-soft:rgba(107,75,12,.14);
+  --danger:#7A2113; --danger-soft:rgba(122,33,19,.12);
   --page:#FCF7E9; --page-ink:#372D1D;
   --scrim:rgba(56,42,20,.42);
   --shadow-1:0 1px 2px rgba(70,54,26,.10);
@@ -91,6 +91,26 @@
   --page-shadow:0 1px 1px rgba(70,54,26,.08),0 8px 26px rgba(70,54,26,.16);
   --hl:#F0D98C;
 }
+
+/* ---- contrast (WCAG AAA, maximum legibility) ---- */
+[data-theme="contrast"]{
+  color-scheme:light;
+  --bg:#FFFFFF; --surface:#FFFFFF; --surface-2:#F1F1F1; --surface-3:#E4E4E4;
+  --ink:#000000; --ink-2:#141414; --ink-3:#141414;
+  --line:#000000; --line-2:#8A8A8A;
+  --accent:#00308F; --accent-ink:#FFFFFF; --accent-2:#001B55; --accent-soft:rgba(0,48,143,.16);
+  --brass:#4A3000; --ok:#00542A; --ok-soft:rgba(0,84,42,.16);
+  --warn:#5E3B00; --warn-soft:rgba(94,59,0,.18);
+  --danger:#9B0000; --danger-soft:rgba(155,0,0,.16);
+  --page:#FFFFFF; --page-ink:#000000;
+  --scrim:rgba(0,0,0,.78);
+  --shadow-1:0 0 0 1px #000; --shadow-2:0 0 0 2px #000; --shadow-3:0 0 0 3px #000;
+  --page-shadow:none;
+  --hl:#FFFF00;
+}
+[data-theme="contrast"] .seal{box-shadow:none}
+[data-theme="contrast"] .guide{border-top:2px solid #000}
+[data-theme="contrast"] .guide span{background:#000;color:#fff;border-radius:0}
 
 /* ============================================================ reset */
 *,*::before,*::after{box-sizing:border-box}
@@ -107,7 +127,7 @@ a{color:var(--accent);text-underline-offset:2px}
 img{max-width:100%}
 svg{display:block;flex:none}
 :focus{outline:none}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:3px}
 .hidden{display:none !important}
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 ::selection{background:var(--accent-soft);color:inherit}
@@ -1084,7 +1104,7 @@ code.inline{font-family:var(--mono);font-size:.92em;background:var(--surface-3);
 <div id="dlgHost"></div>
 
 <script type="application/json" id="ydPayload"><!--YD:START-->null<!--YD:END--></script>
-<script nonce="79fc3bf6abd3e5b3d566022bd03fd2c0">
+<script nonce="044f8160ea7a1979d785653040361f59">
 "use strict";
 /* ==========================================================================
    YaleDoc v2 — core: constants, i18n, utilities, crypto, format, sanitizer
@@ -1679,6 +1699,12 @@ function focusables(root) {
 function openDialog(opts) {
   const host = $("dlgHost");
   const prev = document.activeElement;
+  /* A bare `close()` in this scope resolves to the GLOBAL window.close() — the
+     tab-closing function — because an object-literal method is not a binding in
+     the enclosing scope. Firefox honours it and tears the document down, losing
+     the user's work; Chromium and WebKit silently no-op it, which is why it
+     survived every other engine. Bind the real one up front. */
+  let close = () => { };
   const scrim = mk("div", { class: "scrim", role: "dialog", "aria-modal": "true", "aria-label": opts.title || "Dialog" });
   const dlg = mk("div", { class: "dlg" + (opts.cls ? " " + opts.cls : "") });
   const head = mk("div", { class: "dlg-h" }, [
@@ -1725,6 +1751,7 @@ function openDialog(opts) {
       else if (!e.shiftKey && (document.activeElement === last || !dlg.contains(document.activeElement))) { e.preventDefault(); first.focus(); }
     }
   }
+  close = api.close.bind(api);
   scrim.addEventListener("mousedown", e => { if (e.target === scrim && !opts.noDismiss) api.close(); });
   host.classList.remove("hidden");
   openStack.push(api);
@@ -1737,6 +1764,10 @@ function openDialog(opts) {
   });
   return api;
 }
+/* Belt and braces: this document was never script-opened, so window.close() must
+   not be able to tear it down even if some future path reaches for it. */
+try { window.close = function () { /* intentionally inert */ }; } catch (e) { }
+
 function closeTopDialog() { if (openStack.length) { openStack[openStack.length - 1].close(); return true; } return false; }
 
 function confirmDlg(o) {
@@ -2015,7 +2046,7 @@ function optGroup(id, items, cur, onPick) {
     box.appendChild(b);
   });
 }
-const THEME_LABEL = { paper: "paper", ink: "ink", sepia: "sepia" };
+const THEME_LABEL = { paper: "paper", ink: "ink", sepia: "sepia", contrast: "contrast" };
 let settingsBound = false;
 function syncSettingsUI() {
   if (!state.doc) return;
@@ -3970,7 +4001,7 @@ window.__yd = {
   mdToHtml, toMarkdown, toPlainText, saveFile, makeBlobNow, openFile, lockNow, unlockNow,
   takeSnapshot, runFind, find, closeFind, exec, blockFmt, applyAlign, insertTable, insertImage,
   toggleTodo, maybeBlockShortcut, maybeInlineShortcut, setIndent, showSlash, hideSlash, insertPageBreak,
-  setZoom, openPalette, commandList, openDialog, toast, t, setLang, markDirty, updateStatus,
+  setZoom, openPalette, commandList, openDialog, toast, t, setLang, markDirty, updateStatus, tablePicker, openFind, closeTopDialog,
   applySettings, drawGuides, setRail, renderOutline, estPayloadBytes, buildTest: (pw, content, settings) => makePayloadFor(pw, content, settings),
 };
 async function makePayloadFor(password, content, settings) {
