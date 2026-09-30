@@ -114,9 +114,12 @@ def main() -> int:
             ctx = b.new_context(viewport={"width": 1440, "height": 900}, accept_downloads=True)
             page = ctx.new_page()
             page.on("dialog", lambda d: d.dismiss())
+            first = True
             for label, sel, setup in CONTROLS:
                 try:
-                    # a fresh load per control: no state bleeds, and no context churn
+                    # a clean load per control: no state can bleed between them.
+                    # Slower than an in-place reset, but it is the only way to be sure a
+                    # control is not merely hidden by the previous one.
                     page.goto("file://" + APP)
                     page.wait_for_selector("#setupScreen:not(.hidden)", timeout=20000)
                     page.fill("#setupPw", PW); page.fill("#setupPw2", PW); page.click("#setupGo")

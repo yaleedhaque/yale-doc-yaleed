@@ -982,7 +982,7 @@ window.__yd = {
   mdToHtml, toMarkdown, toPlainText, saveFile, makeBlobNow, openFile, lockNow, unlockNow,
   takeSnapshot, runFind, find, closeFind, exec, blockFmt, applyAlign, insertTable, insertImage,
   toggleTodo, maybeBlockShortcut, maybeInlineShortcut, setIndent, showSlash, hideSlash, insertPageBreak,
-  setZoom, openPalette, commandList, openDialog, toast, t, setLang, markDirty, updateStatus,
+  setZoom, openPalette, commandList, openDialog, toast, t, setLang, markDirty, updateStatus, tablePicker, openFind, closeTopDialog,
   applySettings, drawGuides, setRail, renderOutline, estPayloadBytes, buildTest: (pw, content, settings) => makePayloadFor(pw, content, settings),
 };
 async function makePayloadFor(password, content, settings) {
